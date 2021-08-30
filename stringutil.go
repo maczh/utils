@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 const (
@@ -127,6 +128,181 @@ func AddString(s ...string) string {
 	return string(AddStringBytes(s...))
 }
 
+// IsNumeric returns true if the given character is a numeric, otherwise false.
+func IsNumeric(c byte) bool {
+	return c >= '0' && c <= '9'
+}
+
+// IsAlphabet char
+func IsAlphabet(char uint8) bool {
+	// A 65 -> Z 90
+	if char >= 'A' && char <= 'Z' {
+		return true
+	}
+
+	// a 97 -> z 122
+	if char >= 'a' && char <= 'z' {
+		return true
+	}
+
+	return false
+}
+
+// IsAlphaNum reports whether the byte is an ASCII letter, number, or underscore
+func IsAlphaNum(c uint8) bool {
+	return c == '_' || '0' <= c && c <= '9' || 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z'
+}
+
+// StrPos alias of the strings.Index
+func StrPos(s, sub string) int {
+	return strings.Index(s, sub)
+}
+
+// BytePos alias of the strings.IndexByte
+func BytePos(s string, bt byte) int {
+	return strings.IndexByte(s, bt)
+}
+
+// RunePos alias of the strings.IndexRune
+func RunePos(s string, ru rune) int {
+	return strings.IndexRune(s, ru)
+}
+
+// IsStartOf alias of the strings.HasPrefix
+func IsStartOf(s, sub string) bool {
+	return strings.HasPrefix(s, sub)
+}
+
+// IsEndOf alias of the strings.HasSuffix
+func IsEndOf(s, sub string) bool {
+	return strings.HasSuffix(s, sub)
+}
+
+// Utf8Len of the string
+func Utf8len(s string) int {
+	return utf8.RuneCount([]byte(s))
+}
+
+// ValidUtf8String check
+func ValidUtf8String(s string) bool {
+	return utf8.ValidString(s)
+}
+
+var spaceTable = [256]int8{0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
+// IsSpace returns true if the given character is a space, otherwise false.
+func IsSpace(c byte) bool {
+	return spaceTable[c] == 1
+}
+
+// IsSpaceRune returns true if the given rune is a space, otherwise false.
+func IsSpaceRune(r rune) bool {
+	return r <= 256 && IsSpace(byte(r)) || unicode.IsSpace(r)
+}
+
+// IsBlankBytes returns true if the given []byte is all space characters.
+func IsBlankBytes(bs []byte) bool {
+	for _, b := range bs {
+		if !IsSpace(b) {
+			return false
+		}
+	}
+	return true
+}
+
+func Lowercase(s string) string {
+	return strings.ToLower(s)
+}
+
+// Uppercase alias of the strings.ToUpper()
+func Uppercase(s string) string {
+	return strings.ToUpper(s)
+}
+
+// UpperWord Change the first character of each word to uppercase
+func UpperWord(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+
+	if len(s) == 1 {
+		return strings.ToUpper(s)
+	}
+
+	inWord := true
+	buf := make([]byte, 0, len(s))
+
+	i := 0
+	rs := []rune(s)
+	if runeIsLowerChar(rs[i]) {
+		buf = append(buf, []byte(string(unicode.ToUpper(rs[i])))...)
+	} else {
+		buf = append(buf, []byte(string(rs[i]))...)
+	}
+
+	for j := i + 1; j < len(rs); j++ {
+		if !runeIsWord(rs[i]) && runeIsWord(rs[j]) {
+			inWord = false
+		}
+
+		if runeIsLowerChar(rs[j]) && !inWord {
+			buf = append(buf, []byte(string(unicode.ToUpper(rs[j])))...)
+			inWord = true
+		} else {
+			buf = append(buf, []byte(string(rs[j]))...)
+		}
+
+		if runeIsWord(rs[j]) {
+			inWord = true
+		}
+
+		i++
+	}
+
+	return string(buf)
+}
+
+// LowerFirst lower first char
+func LowerFirst(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+
+	rs := []rune(s)
+	f := rs[0]
+	if 'A' <= f && f <= 'Z' {
+		return string(unicode.ToLower(f)) + string(rs[1:])
+	}
+
+	return s
+}
+
+// UpperFirst upper first char
+func UpperFirst(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	rs := []rune(s)
+	f := rs[0]
+	if 'a' <= f && f <= 'z' {
+		return string(unicode.ToUpper(f)) + string(rs[1:])
+	}
+
+	return s
+}
+
+func runeIsWord(c rune) bool {
+	return runeIsLowerChar(c) || runeIsUpperChar(c)
+}
+
+func runeIsLowerChar(c rune) bool {
+	return 'a' <= c && c <= 'z'
+}
+
+func runeIsUpperChar(c rune) bool {
+	return 'A' <= c && c <= 'Z'
+}
+
 func ReplacePunctuationWithSpace(src string) string {
 	reg1 := regexp.MustCompile(`[\f\t\n\r\v\-\^\$\.\*+\?{}()\/\[\]\|]`)
 	reg2 := regexp.MustCompile(`[\s\p{Zs}]{2,}`)
@@ -159,7 +335,6 @@ func AddSpaceBetweenCharsAndNumbers(src string) string {
 	reg = regexp.MustCompile(`[\s\p{Zs}]{2,}`)
 	return strings.TrimSpace(string(reg.ReplaceAll([]byte(string(result)), []byte(" "))))
 }
-
 
 func ReplacePunctuation(src, replaceWith string) string {
 	reg, _ := regexp.Compile("[^\\w\u4e00-\u9fa5]*")
