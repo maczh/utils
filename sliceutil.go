@@ -289,3 +289,11 @@ func Int64Unique(a []int64) []int64 {
 
 	return out
 }
+
+func UnSplitString(src []string, sep string) string {
+	dst := ""
+	for _, item := range src {
+		dst = dst + item + sep
+	}
+	return dst[:len(dst)-1]
+}
