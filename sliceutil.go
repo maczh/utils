@@ -298,7 +298,7 @@ func UnSplitString(src []string, sep string) string {
 	return dst[:len(dst)-1]
 }
 
-func union(slice1, slice2 []string) []string {
+func UnionStringSlice(slice1, slice2 []string) []string {
 	m := make(map[string]int)
 	for _, v := range slice1 {
 		m[v]++
@@ -314,7 +314,7 @@ func union(slice1, slice2 []string) []string {
 }
 
 //求交集
-func intersect(slice1, slice2 []string) []string {
+func IntersectStringSlice(slice1, slice2 []string) []string {
 	m := make(map[string]int)
 	nn := make([]string, 0)
 	for _, v := range slice1 {
@@ -331,10 +331,10 @@ func intersect(slice1, slice2 []string) []string {
 }
 
 //求差集 slice1-并集
-func difference(slice1, slice2 []string) []string {
+func DifferenceStringSlice(slice1, slice2 []string) []string {
 	m := make(map[string]int)
 	nn := make([]string, 0)
-	inter := intersect(slice1, slice2)
+	inter := IntersectStringSlice(slice1, slice2)
 	for _, v := range inter {
 		m[v]++
 	}
