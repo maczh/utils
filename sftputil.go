@@ -12,7 +12,12 @@ import (
 	"time"
 )
 
-func SftpConnect(user, password, host string, port int) (*sftp.Client, error) {
+func SftpClose(sftpClient *sftp.Client, sshClient *ssh.Client) {
+	sftpClient.Close()
+	sshClient.Close()
+}
+
+func SftpConnect(user, password, host string, port int) (*sftp.Client, *ssh.Client, error) {
 	var (
 		auth         []ssh.AuthMethod
 		addr         string
@@ -39,16 +44,16 @@ func SftpConnect(user, password, host string, port int) (*sftp.Client, error) {
 
 	if sshClient, err = ssh.Dial("tcp", addr, clientConfig); err != nil {
 		logs.Error("sftp建立服务器{}连接错误:{}", addr, err.Error())
-		return nil, err
+		return nil, nil, err
 	}
 
 	// create sftp client
 	if sftpClient, err = sftp.NewClient(sshClient); err != nil {
 		logs.Error("建立sftp客户端错误:{}", err.Error())
-		return nil, err
+		return nil, nil, err
 	}
 
-	return sftpClient, nil
+	return sftpClient, sshClient, nil
 }
 
 func SftpUploadFile(sftpClient *sftp.Client, localFilePath string, remotePath string) {
