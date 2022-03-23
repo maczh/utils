@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/araddon/dateparse"
 	"math"
 	"strings"
 	"time"
@@ -73,21 +74,36 @@ func GormTimeFormat(t string) string {
 // ss - second - 05
 // s - second = 5
 func DateFormat(t time.Time, format string) string {
-	res := strings.Replace(format, "MM", t.Format("01"), -1)
-	res = strings.Replace(res, "M", t.Format("1"), -1)
-	res = strings.Replace(res, "dd", t.Format("02"), -1)
-	res = strings.Replace(res, "D", t.Format("2"), -1)
-	res = strings.Replace(res, "yyyy", t.Format("2006"), -1)
-	res = strings.Replace(res, "yy", t.Format("06"), -1)
-	res = strings.Replace(res, "hh", fmt.Sprintf("%02d", t.Hour()), -1)
-	res = strings.Replace(res, "h", fmt.Sprintf("%d", t.Hour()), -1)
-	res = strings.Replace(res, "HH", t.Format("03"), -1)
-	res = strings.Replace(res, "H", t.Format("3"), -1)
-	res = strings.Replace(res, "mm", t.Format("04"), -1)
-	res = strings.Replace(res, "m", t.Format("4"), -1)
-	res = strings.Replace(res, "ss", t.Format("05"), -1)
-	res = strings.Replace(res, "s", t.Format("5"), -1)
-	return res
+	res := strings.Replace(format, "MMMM", "January", -1)
+	res = strings.Replace(res, "MMM", "Jan", -1)
+	res = strings.Replace(res, "MM", "01", -1)
+	res = strings.Replace(res, "M", "1", -1)
+	res = strings.Replace(res, "dddd", "Monday", -1)
+	res = strings.Replace(res, "ddd", "Mon", -1)
+	res = strings.Replace(res, "dd", "02", -1)
+	res = strings.Replace(res, "d", "2", -1)
+	res = strings.Replace(res, "yyyy", "2006", -1)
+	res = strings.Replace(res, "yy", "06", -1)
+	res = strings.Replace(res, "hh", "15", -1)
+	res = strings.Replace(res, "HH", "03", -1)
+	res = strings.Replace(res, "H", "3", -1)
+	res = strings.Replace(res, "mm", "04", -1)
+	res = strings.Replace(res, "m", "4", -1)
+	res = strings.Replace(res, "ss", "05", -1)
+	res = strings.Replace(res, "s", "5", -1)
+	res = strings.Replace(res, "tt", "PM", -1)
+	res = strings.Replace(res, "ZZZ", "MST", -1)
+	res = strings.Replace(res, "Z", "Z07:00", -1)
+	return t.Format(res)
+}
+
+func ConvertDateFormat(timeStr string, format string) string {
+	t, err := dateparse.ParseLocal(timeStr)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+	return DateFormat(t, format)
 }
 
 func GetNowDateTime() string {

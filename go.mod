@@ -3,6 +3,7 @@ module github.com/maczh/utils
 go 1.17
 
 require (
+	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/emirpasic/gods v1.12.0
 	github.com/gin-gonic/gin v1.7.4
 	github.com/gofrs/uuid v4.1.0+incompatible
