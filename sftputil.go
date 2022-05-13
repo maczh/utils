@@ -2,14 +2,15 @@ package utils
 
 import (
 	"fmt"
-	"github.com/maczh/logs"
-	"github.com/pkg/sftp"
-	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
 	"os"
 	"path"
 	"time"
+
+	"github.com/maczh/logs"
+	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
 )
 
 func SftpClose(sftpClient *sftp.Client, sshClient *ssh.Client) {
@@ -78,4 +79,18 @@ func SftpUploadFile(sftpClient *sftp.Client, localFilePath string, remotePath st
 	}
 	dstFile.Write(ff)
 	logs.Debug("文件{}上传成功!", localFilePath)
+}
+
+func SftpDelFile(sftpClient *sftp.Client, remotePath string) {
+	if _, err := sftpClient.Stat(remotePath); err != nil {
+		logs.Error("远程文件:{}删除失败:{}", remotePath, err.Error())
+		return
+	}
+	err := sftpClient.Remove(remotePath)
+	if err != nil {
+		logs.Error("远程文件:{}删除失败:{}", remotePath, err.Error())
+		return
+	}
+
+	logs.Debug("远程文件{}删除成功!", remotePath)
 }
